@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "homework-14-1"
+version = "0.1.0"
+description = ""
+authors = ["Ярослав Петрунин <arikpetrunin342@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "^3.14"
+google-api-python-client = "^2.197.0"
+google-auth = "^2.54.0"
+cachetools = "^7.1.4"
+isodate = "^0.7.2"
+poetry-core = "^2.4.1"
+requests = "^2.34.2"
+python-dotenv = "^1.2.2"
+pandas = "^3.0.3"
+openpyxl = "^3.1.5"
+tabulate = "^0.10.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pip = "^26.1.2"
+pytest = "^9.1.1"
+pytest-cov = "^7.1.0"
+
+
+[tool.poetry.group.lint.dependencies]
+flake8 = "^7.3.0"
+mypy = "^2.1.0"
+black = "^26.5.1"
+isort = "^6.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.mypy]
+disallow_untyped_defs=true
+warn_return_any=true
+warn_unreachable=true

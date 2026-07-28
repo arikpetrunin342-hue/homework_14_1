@@ -1,10 +1,10 @@
-# Продуктовый каталог на Python.
+# Каталог на Python.
 
 homework_14_1 - homework_...
 
 ## Описание проекта
 
-Продуктовый каталог, созданный в рамках учебного проекта.
+Каталог, созданный в рамках учебного проекта.
 
 ## Функционал
 
@@ -41,7 +41,7 @@ homework_14_1 - homework_...
 
 Пример создания продукта:
 
-`tomato = Product(name='tomato', description='red', price=15.50, quanity=10)`
+`product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)`
 
 ### Класс `Category`
 * **Атрибуты:** название категории (`name`), её описание (`description`), список продуктов (`products`)
@@ -50,4 +50,6 @@ homework_14_1 - homework_...
 
 Пример создания категории:
 
-`salad_category = Category(name='for salad', description='good salad', products=['tomato', 'cucumber', 'salt', 'onion', 'sour cream'])`
+`category1 = Category("Смартфоны",
+                         "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
+                         [product1, product2, product3])`

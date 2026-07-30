@@ -2,13 +2,13 @@ class Product:
     name: str
     description: str
     price: float
-    quantity: int
+    quality: int
 
-    def __init__(self, name, description, price, quantity):
+    def __init__(self, name, description, price, quality):
         self.name = name
         self.description = description
         self.__price = price
-        self.quantity = quantity
+        self.quality = quality
 
     @classmethod
     def new_product(cls, product_dict):
@@ -59,7 +59,7 @@ class Category:
         result = ""
         for prod in self.__products:
             line = (
-                f"Продукт: {prod.name}, {prod.price} руб. Остаток: {prod.quantity} шт."
+                f"Продукт: {prod.name}, {prod.price} руб. Остаток: {prod.quality} шт."
             )
             result += line
         return result.strip()

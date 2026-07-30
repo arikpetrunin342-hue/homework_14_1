@@ -15,6 +15,15 @@ def test_products(product):
     assert product.description == "256GB, Серый цвет, 200MP камера"
     assert product.price == 180000.0
     assert product.quality == 5
+    assert str(product) == "Samsung Galaxy S23 Ultra, 180000.0 руб. Остаток: 5 шт."
+
+
+def test_products_add():
+    prod_1 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
+    prod_2 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
+
+    res_prod = prod_1 + prod_2
+    assert str(res_prod) == "2114000.0"
 
 
 def test_price_property(product):
@@ -99,6 +108,7 @@ def test_category(category):
     )
     assert category.category_count == 1
     assert category.product_count == 3
+    assert str(category) == "Смартфоны, количество продуктов: 3 шт."
 
 
 def test_category_add_product(category):
@@ -147,4 +157,3 @@ def test_category_empty():
     ), "Метод должен вернуть список даже для пустой категории."
     assert not products, "Список товаров не должен быть пустым."
     assert empty_category.product_count == 0, "Счётчик товаров должен быть равен нулю."
-

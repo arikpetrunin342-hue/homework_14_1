@@ -10,6 +10,13 @@ class Product:
         self.__price = price
         self.quality = quality
 
+    def __str__(self):
+        return f"{self.name}, {self.__price} руб. Остаток: {self.quality} шт."
+
+    def __add__(self, other):
+        new_cost = self.__price * self.quality + other.__price * other.quality
+        return new_cost
+
     @classmethod
     def new_product(cls, product_dict):
         return cls(**product_dict)
@@ -44,6 +51,9 @@ class Category:
 
         Category.category_count += 1
         Category.product_count += len(products) if products else 0
+
+    def __str__(self):
+        return f"{self.name}, количество продуктов: {Category.product_count} шт."
 
     def add_product(self, product: Product):
         if not isinstance(product, Product):

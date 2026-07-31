@@ -108,7 +108,7 @@ def test_category(category):
     )
     assert category.category_count == 1
     assert category.product_count == 3
-    assert str(category) == "Смартфоны, количество продуктов: 3 шт."
+    assert str(category) == "Смартфоны, количество продуктов: 27 шт."
 
 
 def test_category_add_product(category):

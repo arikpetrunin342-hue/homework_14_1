@@ -2,20 +2,23 @@ class Product:
     name: str
     description: str
     price: float
-    quality: int
+    quantity: int
 
-    def __init__(self, name, description, price, quality):
+    def __init__(self, name, description, price, quantity):
         self.name = name
         self.description = description
         self.__price = price
-        self.quality = quality
+        self.quantity = quantity
 
     def __str__(self):
-        return f"{self.name}, {self.__price} руб. Остаток: {self.quality} шт."
+        return f"{self.name}, {self.__price} руб. Остаток: {self.quantity} шт."
 
     def __add__(self, other):
-        new_cost = self.__price * self.quality + other.__price * other.quality
-        return new_cost
+        if type(self) is type(other):
+            new_cost = self.__price * self.quantity + other.__price * other.quantity
+            return new_cost
+        else:
+            raise TypeError
 
     @classmethod
     def new_product(cls, product_dict):
@@ -53,9 +56,14 @@ class Category:
         Category.product_count += len(products) if products else 0
 
     def __str__(self):
-        return f"{self.name}, количество продуктов: {sum(p.quality for p in self.__products)} шт."
+        return f"{self.name}, количество продуктов: {sum(p.quantity for p in self.__products)} шт."
+
+    def __len__(self):
+        return len(f"{self.products}")
 
     def add_product(self, product: Product):
+        if not issubclass(type(product), Product):
+            raise TypeError("Можно добавлять только продукты или их наследники!")
         if not isinstance(product, Product):
             raise TypeError("Можно добавлять только объекты типа Product.")
         Category.product_count += 1
@@ -69,7 +77,30 @@ class Category:
         result = ""
         for prod in self.__products:
             line = (
-                f"Продукт: {prod.name}, {prod.price} руб. Остаток: {prod.quality} шт."
+                f"Продукт: {prod.name}, {prod.price} руб. Остаток: {prod.quantity} шт."
             )
             result += line
         return result.strip()
+
+
+class Smartphone(Product):  #
+
+    def __init__(
+        self, name, description, price, quantity, efficiency, model, memory, color
+    ):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):  #
+
+    def __init__(
+        self, name, description, price, quantity, country, germination_period, color
+    ):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color

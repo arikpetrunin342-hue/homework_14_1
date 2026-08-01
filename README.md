@@ -32,7 +32,7 @@ homework_14_1 - homework_...
 
 `poetry run pytest --cov=src`
 
-Покрытие кода: **96%**
+Покрытие кода: **94%**
 
 Чтобы посмотреть отчет с деталями покрытия, откройте файл `.htmlcov/index.html`. Или нажмите [open](./htmlcov/index.html)
 

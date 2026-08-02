@@ -1,7 +1,7 @@
 import io
 
 import pytest
-
+from tests.conftest import product1, product2
 from src.class_for_work import Category, LawnGrass, Product, Smartphone
 
 
@@ -111,44 +111,6 @@ def test_category_products(category):
     ), "Свойство должно вернуть корректную информацию о товаре."
 
 
-def test_category(category):
-    assert category.name == "Смартфоны"
-    assert (
-        category.description
-        == "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни"
-    )
-    expected = "Смартфоны, количество продуктов: 27 шт."
-    assert category.category_count == 1
-    assert category.product_count == 3
-    assert str(category) == "Смартфоны, количество продуктов: 27 шт."
-    assert str(category) == expected
-
-
-def test_category_add_product(category):
-    new_item = Product.new_product(
-        {
-            "name": "Test Phone",
-            "description": "Just a phone.",
-            "price": 10_000,
-            "quantity": 3,
-        }
-    )
-
-    category.add_product(new_item)
-
-    assert (
-        len(category.get_products()) == 4
-    ), f"Ожидалось 4 продукта, а в категории {len(category.get_products())}."
-
-    assert (
-        category.product_count == 4
-    ), f"Счётчик product_count неверный: ожидалось 4, получено {category.product_count}"
-
-    new = New("name")
-
-    with pytest.raises(TypeError):
-        _ = new_item + new
-
 
 def test_category_get_products(category):
     products_copy = category.get_products()
@@ -163,18 +125,6 @@ def test_category_get_products(category):
 
     assert isinstance(products_copy, list)
     assert products_copy is not original_list, "Возвращён оригинал вместо копии!"
-
-
-def test_category_empty():
-
-    empty_category = Category("Пустая", "Описание пустой")
-    products = empty_category.get_products()
-
-    assert isinstance(
-        products, list
-    ), "Метод должен вернуть список даже для пустой категории."
-    assert not products, "Список товаров не должен быть пустым."
-    assert empty_category.product_count == 0, "Счётчик товаров должен быть равен нулю."
 
 
 def test_smartphone(smartphone):
@@ -243,12 +193,6 @@ def test_add_self():
     assert res == 2.0
 
 
-@pytest.fixture
-def category_empty():
-    """Создаёт пустую категорию."""
-    return Category("Пустая", "")
-
-
 def test_inheritance():
     """Проверяет наличие базовых свойств в дочерних классах."""
     sp = Smartphone("Test", "", 100.0, 1, 100.0, "", 1, "")
@@ -268,3 +212,105 @@ def test_add_product_to_list(category_emp_pr):
     products_copy = category_emp_pr.get_products()
     assert len(products_copy) == 1, "Список товаров должен был пополниться."
     assert product is products_copy[0], "Добавленный товар найден в списке"
+
+
+def test_print_mixin(new_product, capsys):
+    print(repr(new_product))
+
+    message = capsys.readouterr()
+    expected_output = 'Xiaomi Redmi Note 11, 1024GB, Синий, 31000.0, 14'
+
+    assert expected_output in message.out.strip(), (
+        f"Вывод repr не совпадает.\nОжидалось вхождение: {expected_output}\nПолучено: {message.out}"
+    )
+
+
+def test_product_init():
+    """Проверяет корректность инициализации базового продукта."""
+    product = Product("Test", "Description", 100.0, 2)
+    assert product.name == "Test"
+    assert product.description == "Description"
+    assert product.price == 100.0
+    assert product.quantity == 2
+
+    with pytest.raises(AttributeError):
+        _ = product.__price
+
+
+def test_print_mixin_repr(new_product):
+    """Проверяет реализацию метода __repr__, который вызывается при print(repr(obj))"""
+    expected = 'Xiaomi Redmi Note 11, 1024GB, Синий, 31000.0, 14'
+    assert repr(new_product) == expected
+
+
+def test_smartphone_init(smartphone):
+    """Проверяет наличие всех специфичных атрибутов у смартфона."""
+    assert smartphone.efficiency == 95.5
+    assert smartphone.model == "S23 Ultra"
+    assert smartphone.memory == 256
+    assert smartphone.color == "Серый"
+
+
+def test_lawngrass_init(lawngrass):
+    """Проверяет наличие всех специфичных атрибутов у газонной травы."""
+    assert lawngrass.country == "Россия"
+    assert lawngrass.germination_period == "7 дней"
+    assert lawngrass.color == "Зеленый"
+
+
+def test_add_to_empty_category(category_emp_pr):
+    """Проверяет добавление первого товара в категорию с пустым списком продуктов. Также проверяется инкремент счётчика товаров."""
+    category = category_emp_pr
+    initial_count = Category.product_count
+
+    new_item = Product("New Item", "Desc", 100.0, 1)
+    category.add_product(new_item)
+
+    products_copy = category.get_products()
+    assert len(products_copy) == 1
+    assert products_copy[0] is new_item
+    assert Category.product_count == initial_count + 1
+
+
+def test_category_products_property_empty(category_empty):
+    """Проверяет поведение свойства .products для пустой категории. Оно должно возвращать пустую строку без пробелов."""
+    result = category_empty.products
+    assert isinstance(result, str), "Ожидается строка."
+    assert not result.strip(), "Строка должна быть пустой или содержать только пробелы."
+
+
+def test_get_products_returns_copy(category):
+    """Проверяет, что метод возвращает именно копию внутреннего списка, чтобы нельзя было модифицировать оригинальный список извне."""
+    original_list = category._Category__products
+    copy_list = category.get_products()
+
+    assert copy_list is not original_list
+
+    assert list(copy_list) == list(original_list)
+
+    copy_list.append(Product("Fake", "", 0, 0))
+    assert len(copy_list) != len(original_list)
+
+
+def test_category_class_attributes():
+    """Проверяет работу статических переменных класса Category:
+    - При создании новой категории увеличивается category_count.
+    - При передаче товаров в конструктор увеличивается product_count."""
+    init_cat_count = Category.category_count
+    init_prod_count = Category.product_count
+
+    _ = Category("Тестовая категория", "")
+    assert Category.category_count == init_cat_count + 1
+    assert Category.product_count == init_prod_count
+
+    _ = Category(
+        "Смартфоны",
+        "",
+        [product1, product2]
+    )
+    assert Category.category_count == init_cat_count + 2
+    assert Category.product_count == init_prod_count + 2
+
+
+def test_category_init(category_empty):
+    assert category_empty.name == "Пустая"

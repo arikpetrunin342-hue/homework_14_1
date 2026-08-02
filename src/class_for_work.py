@@ -1,4 +1,24 @@
-class Product:
+from abc import ABC, abstractmethod
+
+class BaseProduct(ABC):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        pass
+
+    def __add__(self, other):
+        pass
+
+class PrintMixin:
+    def __init__(self):
+        print(repr(self))
+
+    def __repr__(self):
+        return f'{self.name}, {self.description}, {self.price}, {self.quantity}'
+
+
+class Product(BaseProduct, PrintMixin):
     name: str
     description: str
     price: float

@@ -67,3 +67,14 @@ def category_emp_pr():
         "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
         [],
     )
+
+
+@pytest.fixture
+def new_product():
+    return Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
+
+
+@pytest.fixture
+def category_empty():
+    """Создаёт пустую категорию."""
+    return Category("Пустая", "")

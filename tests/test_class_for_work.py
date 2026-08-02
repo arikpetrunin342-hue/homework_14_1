@@ -1,8 +1,9 @@
 import io
 
 import pytest
-from tests.conftest import product1, product2
+
 from src.class_for_work import Category, LawnGrass, Product, Smartphone
+from tests.conftest import product1, product2
 
 
 class New:
@@ -111,7 +112,6 @@ def test_category_products(category):
     ), "Свойство должно вернуть корректную информацию о товаре."
 
 
-
 def test_category_get_products(category):
     products_copy = category.get_products()
 
@@ -218,11 +218,11 @@ def test_print_mixin(new_product, capsys):
     print(repr(new_product))
 
     message = capsys.readouterr()
-    expected_output = 'Xiaomi Redmi Note 11, 1024GB, Синий, 31000.0, 14'
+    expected_output = "Xiaomi Redmi Note 11, 1024GB, Синий, 31000.0, 14"
 
-    assert expected_output in message.out.strip(), (
-        f"Вывод repr не совпадает.\nОжидалось вхождение: {expected_output}\nПолучено: {message.out}"
-    )
+    assert (
+        expected_output in message.out.strip()
+    ), f"Вывод repr не совпадает.\nОжидалось вхождение: {expected_output}\nПолучено: {message.out}"
 
 
 def test_product_init():
@@ -239,7 +239,7 @@ def test_product_init():
 
 def test_print_mixin_repr(new_product):
     """Проверяет реализацию метода __repr__, который вызывается при print(repr(obj))"""
-    expected = 'Xiaomi Redmi Note 11, 1024GB, Синий, 31000.0, 14'
+    expected = "Xiaomi Redmi Note 11, 1024GB, Синий, 31000.0, 14"
     assert repr(new_product) == expected
 
 
@@ -259,7 +259,8 @@ def test_lawngrass_init(lawngrass):
 
 
 def test_add_to_empty_category(category_emp_pr):
-    """Проверяет добавление первого товара в категорию с пустым списком продуктов. Также проверяется инкремент счётчика товаров."""
+    """Проверяет добавление первого товара в категорию с пустым списком продуктов.
+    Также проверяется инкремент счётчика товаров."""
     category = category_emp_pr
     initial_count = Category.product_count
 
@@ -273,14 +274,16 @@ def test_add_to_empty_category(category_emp_pr):
 
 
 def test_category_products_property_empty(category_empty):
-    """Проверяет поведение свойства .products для пустой категории. Оно должно возвращать пустую строку без пробелов."""
+    """Проверяет поведение свойства .products для пустой категории.
+    Оно должно возвращать пустую строку без пробелов."""
     result = category_empty.products
     assert isinstance(result, str), "Ожидается строка."
     assert not result.strip(), "Строка должна быть пустой или содержать только пробелы."
 
 
 def test_get_products_returns_copy(category):
-    """Проверяет, что метод возвращает именно копию внутреннего списка, чтобы нельзя было модифицировать оригинальный список извне."""
+    """Проверяет, что метод возвращает именно копию внутреннего списка,
+    чтобы нельзя было модифицировать оригинальный список извне."""
     original_list = category._Category__products
     copy_list = category.get_products()
 
@@ -303,11 +306,7 @@ def test_category_class_attributes():
     assert Category.category_count == init_cat_count + 1
     assert Category.product_count == init_prod_count
 
-    _ = Category(
-        "Смартфоны",
-        "",
-        [product1, product2]
-    )
+    _ = Category("Смартфоны", "", [product1, product2])
     assert Category.category_count == init_cat_count + 2
     assert Category.product_count == init_prod_count + 2
 

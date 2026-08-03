@@ -34,13 +34,15 @@ class Product(BaseProduct, PrintMixin):
         self.name = name
         self.description = description
         self.__price = price
+        if quantity <= 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
         self.quantity = quantity
 
     def __str__(self):
         return f"{self.name}, {self.__price} руб. Остаток: {self.quantity} шт."
 
     def __add__(self, other):
-        if type(self) is type(other):
+        if isinstance(other, Product):
             new_cost = self.__price * self.quantity + other.__price * other.quantity
             return new_cost
         else:
@@ -57,7 +59,7 @@ class Product(BaseProduct, PrintMixin):
     @price.setter
     def price(self, new_price):
         if new_price <= 0:
-            print("Цена не должна быть нулевой или отрицательной.")
+            raise ValueError("Цена не должна быть нулевой или отрицательной.")
         else:
             self.__price = new_price
 
@@ -85,7 +87,7 @@ class Category:
         return f"{self.name}, количество продуктов: {sum(p.quantity for p in self.__products)} шт."
 
     def __len__(self):
-        return len(f"{self.products}")
+        return len(f"{self._Category__products}")
 
     def add_product(self, product: Product):
         if not issubclass(type(product), Product):
@@ -107,6 +109,20 @@ class Category:
             )
             result += line
         return result.strip()
+
+    def middle_price(self):
+        if not self.__products:
+            return 0
+
+        total_cost = sum(p.price * p.quantity for p in self.__products)
+        total_quantity = sum(p.quantity for p in self.__products)
+        try:
+            average = total_cost / total_quantity
+        except ZeroDivisionError as e:
+            print(f"Ошибка при расчете средней цены {e}.")
+            return 0
+        else:
+            return average
 
 
 class Smartphone(Product):  #

@@ -1,9 +1,9 @@
-import io
+import math
 
 import pytest
 
 from src.class_for_work import Category, LawnGrass, Product, Smartphone
-from tests.conftest import product1, product2
+from tests.conftest import product_1, product_2, product_3
 
 
 class New:
@@ -34,42 +34,38 @@ def test_products_add():
 
     res_prod = prod_1 + prod_2
     assert str(res_prod) == "2114000.0"
-    with pytest.raises(TypeError):
-        _ = prod_1 + grass2
+    assert prod_1 + grass2 == 1686750.0
 
 
 def test_price_property(product):
-    initial_price = product.price
-    assert initial_price == 180_000.0, f"Ожидалось 180000.0, получено {initial_price}"
+    """Проверяет поведение свойства price: получение, установка,
+    реакция на неверные типы данных и запрещённые значения."""
 
-    product.price = 150_000.0
-    updated_price = product.price
-    assert (
-        updated_price == 150_000.0
-    ), f"Цена не обновилась: ожидалось 150000.0, получено {updated_price}"
+    new_valid_price = 150_000.0
+    product.price = new_valid_price
+    assert math.isclose(
+        product.price, new_valid_price
+    ), f"Цена не обновилась: ожидалось {new_valid_price}, получено {product.price}"
 
-    from contextlib import redirect_stdout
-
-    with io.StringIO() as buf, redirect_stdout(buf):
+    with pytest.raises(ValueError) as e:
         product.price = 0
-        output = buf.getvalue().strip()
 
+    expected_message = "Цена не должна быть нулевой или отрицательной."
     assert (
-        output == "Цена не должна быть нулевой или отрицательной."
-    ), f"Не выведено сообщение об ошибке, а '{output}'"
+        str(e.value) == expected_message
+    ), f"Ожидалось '{expected_message}', получено '{str(e.value)}'"
 
     unchanged_price = product.price
-    assert (
-        unchanged_price == 150_000.0
-    ), f"После ошибки цена изменилаcь! Ожидалось 150000.0, получено {unchanged_price}"
+    assert math.isclose(
+        unchanged_price, new_valid_price
+    ), f"После ошибки цена изменилась! Ожидалось {new_valid_price}, получено {unchanged_price}"
 
-    with io.StringIO() as buf, redirect_stdout(buf):
+    with pytest.raises(ValueError) as e:
         product.price = -100
-        output = buf.getvalue().strip()
+    assert str(e.value) == expected_message
 
-    assert (
-        output == "Цена не должна быть нулевой или отрицательной."
-    ), f"Не выведено сообщение об ошибке, а '{output}'"
+    unchanged_price = product.price
+    assert math.isclose(unchanged_price, new_valid_price)
 
     try:
         product.price = "abc"
@@ -79,22 +75,18 @@ def test_price_property(product):
         raise AssertionError("Должна была возникнуть ошибка преобразования типа.")
 
 
-def test_price_property_negative(product):
-    """Проверка реакции при попытке установить отрицательную цену."""
-
-    initial_price = product.price
-    product.price = -1
-    assert (
-        product.price == initial_price
-    ), "Цена изменилась при установке отрицательного значения."
-
-
 def test_price_property_zero(product):
-    """Проверка реакции при попытке установить нулевую цену."""
 
     initial_price = product.price
-    product.price = 0
-    assert product.price == initial_price, "Цена изменилась при установке нуля."
+    assert product.price == initial_price
+    with pytest.raises(
+        ValueError, match="Цена не должна быть нулевой или отрицательной."
+    ):
+        product.price = 0
+    with pytest.raises(
+        ValueError, match="Цена не должна быть нулевой или отрицательной."
+    ):
+        product.price = -1
 
 
 def test_category_products(category):
@@ -158,7 +150,6 @@ def test_add_same_type_product(product):
 
 
 def test_add_different_classes():
-    """Проверяет, что нельзя сложить продукт и газонную траву."""
     product = Product("Смартфон", "Мощный", 10000.0, 1)
     grass = LawnGrass(
         "Газонная трава",
@@ -169,8 +160,8 @@ def test_add_different_classes():
         "5 дней",
         "Темно-зеленый",
     )
-    with pytest.raises(TypeError):
-        _ = product + grass
+    res = product + grass
+    assert res == 16750.0
 
 
 def test_add_invalid_types():
@@ -291,7 +282,7 @@ def test_get_products_returns_copy(category):
 
     assert list(copy_list) == list(original_list)
 
-    copy_list.append(Product("Fake", "", 0, 0))
+    copy_list.append(Product("Fake", "", 1, 1))
     assert len(copy_list) != len(original_list)
 
 
@@ -306,10 +297,115 @@ def test_category_class_attributes():
     assert Category.category_count == init_cat_count + 1
     assert Category.product_count == init_prod_count
 
-    _ = Category("Смартфоны", "", [product1, product2])
+    _ = Category("Смартфоны", "", [product_1, product_2])
     assert Category.category_count == init_cat_count + 2
     assert Category.product_count == init_prod_count + 2
 
 
 def test_category_init(category_empty):
     assert category_empty.name == "Пустая"
+
+
+def test_zero_quantity():
+    with pytest.raises(
+        ValueError, match="Товар с нулевым количеством не может быть добавлен"
+    ):
+        Product(
+            "Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 0
+        )
+
+
+def test_middle_price_zero_prod(category_emp_pr):
+    assert category_emp_pr.middle_price() == 0
+
+
+def test_product_cannot_be_created_with_zero_quantity():
+    with pytest.raises(ValueError):
+        Product("Тестовый продукт", "", 100, 0)
+
+
+def test_middle_price_calculates_correctly(category_with_products):
+    expected_average = 210000.0
+    result = category_with_products.middle_price()
+    assert isinstance(result, float)
+    assert math.isclose(result, expected_average, rel_tol=1e-6)
+
+
+def test_product_cannot_be_created_with__zero_quantity():
+    with pytest.raises(ValueError):
+        Product("Тестовый товар", "Описание", 100, 0)
+        Product("Другой тестовый товар", "", -50, -1)
+
+
+def test_product_str_representation(product):
+    expected = f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт."
+    assert str(product) == expected
+
+
+def test_product_price_getter_and_setter(fail_product):
+    assert fail_product.price == 0
+
+    fail_product.price = 190000.0
+    assert fail_product.price == 190000.0
+
+    with pytest.raises(ValueError):
+        fail_product.price = -100
+
+
+def test_category_init_without_products(category_empty):
+    assert category_empty.products == ""
+
+
+def test_category_init_with_products(category_2):
+    products_in_category = [product_1, product_2, product_3]
+    assert len(category_2.get_products()) == len(products_in_category)
+
+
+def test_add_product(category, smartphone):
+    initial_product_count = Category.product_count
+
+    category.add_product(smartphone)
+
+    assert smartphone in category.get_products()
+    assert Category.product_count == initial_product_count + 1
+
+
+def test_add_product_wrong_type(category):
+    lawngrrass = ""
+    with pytest.raises(TypeError):
+        category.add_product(lawngrrass)
+    with pytest.raises(TypeError):
+        category.add_product(object())
+
+
+def test_category_products_property(category):
+    result = category.products
+    assert isinstance(result, str)
+    for prod in [product_1, product_2, product_3]:
+        assert prod.name in result
+
+
+def test_middle_price_for_empty_category(category_emp_pr):
+    average = category_emp_pr.middle_price()
+    assert average == 0
+
+
+def test_middle_price__calculates_correctly(category_with_products):
+    average = category_with_products.middle_price()
+    assert math.isclose(average, 210000.0)
+
+
+def test_get_products_returns__copy(category):
+    original_list = category._Category__products
+    copied_list = category.get_products()
+
+    assert copied_list == original_list
+    assert copied_list is not original_list
+
+
+def test_add_product_fixture(category, new_product):
+    assert new_product not in category.get_products()
+
+    category.add_product(new_product)
+
+    assert new_product in category.get_products()
